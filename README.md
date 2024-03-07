@@ -1,2 +1,5 @@
 # cot-rec
-cot-rec实验代码
+
+cot-rec 实验代码
+
+python==3.9

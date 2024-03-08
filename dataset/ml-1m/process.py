@@ -1,5 +1,6 @@
 import pandas as pd
 import copy
+import json
 
 
 def get_ratings(file):
@@ -66,8 +67,10 @@ def get_users(file):
 
 
 class Dataset(object):
-    def __init__(self, dataset, u2i=True):
+    def __init__(self, dataset, user_dataset, item_dataset, u2i=True):
         self.dataset = dataset
+        self.user_dataset = user_dataset
+        self.item_dataset = item_dataset
         self.use_u2i = u2i
         self.n_users = self.dataset["userID"].nunique()
         self.n_items = self.dataset["itemID"].nunique()
@@ -247,6 +250,108 @@ class Dataset(object):
                 [type1, self.train_set], axis=0, ignore_index=True
             )
 
+    def generate_prompt(self):
+
+        train_prompts = []
+        for index, row in self.train_set.iterrows():
+            user = self.user_dataset.loc[
+                self.user_dataset["userID"] == row["userID"]
+            ].values[0]
+            insert = {}
+
+            gender = user[1]
+            age = user[2]
+            occupation = user[3]
+
+            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+
+            for i, v in enumerate(row["history"]):
+                item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
+                item_scale = row["history_feedback"][i]
+                prompt += f"({item[1]}, {item[2]}, {item_scale} star); "
+            prompt = prompt[:-2] + "."
+            insert["prompt"] = prompt
+
+            value = self.item_dataset.loc[
+                self.item_dataset["itemID"] == row["itemID"]
+            ].values[0]
+            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            insert["cot_prompt"] = cot_prompt
+            insert["value"] = value[1]
+            insert["value_genres"] = value[2]
+            insert["value_scale"] = row["rating"]
+            train_prompts.append(insert)
+            if index % 1000 == 0:
+                print(index)
+        with open("train.json", "w") as f:
+            json.dump(train_prompts, f)
+
+    def generate_test_prompt(self):
+        train_prompts = []
+        for _, row in self.test_set.iterrows():
+            user = self.user_dataset.loc[
+                self.user_dataset["userID"] == row["userID"]
+            ].values[0]
+            insert = {}
+
+            gender = user[1]
+            age = user[2]
+            occupation = user[3]
+
+            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+
+            for i, v in enumerate(row["history"]):
+                item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
+                item_scale = row["history_feedback"][i]
+                prompt += f"({item[1]}, {item[2]}, {item_scale} star); "
+            prompt = prompt[:-2] + "."
+            insert["prompt"] = prompt
+
+            value = self.item_dataset.loc[
+                self.item_dataset["itemID"] == row["itemID"]
+            ].values[0]
+            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            insert["cot_prompt"] = cot_prompt
+            insert["value"] = value[1]
+            insert["value_genres"] = value[2]
+            insert["value_scale"] = row["rating"]
+            train_prompts.append(insert)
+        with open("test.json", "w") as f:
+            json.dump(train_prompts, f)
+
+    def generate_validation_prompt(self):
+        train_prompts = []
+        for _, row in self.validation_set.iterrows():
+            user = self.user_dataset.loc[
+                self.user_dataset["userID"] == row["userID"]
+            ].values[0]
+            insert = {}
+
+            gender = user[1]
+            age = user[2]
+            occupation = user[3]
+
+            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+
+            for i, v in enumerate(row["history"]):
+                item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
+                item_scale = row["history_feedback"][i]
+                prompt += f"({item[1]}, {item[2]}, {item_scale} star); "
+            prompt = prompt[:-2] + "."
+            insert["prompt"] = prompt
+
+            value = self.item_dataset.loc[
+                self.item_dataset["itemID"] == row["itemID"]
+            ].values[0]
+            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            insert["cot_prompt"] = cot_prompt
+            insert["value"] = value[1]
+            insert["value_genres"] = value[2]
+            insert["value_scale"] = row["rating"]
+            train_prompts.append(insert)
+        with open("validation.json", "w") as f:
+            json.dump(train_prompts, f)
+
 
 if __name__ == "__main__":
 
@@ -262,29 +367,8 @@ if __name__ == "__main__":
     user_data = get_users(file)
     print(user_data)
 
-    data = Dataset(rating_data)
+    data = Dataset(rating_data, user_data, item_data)
     data.process_data()
-    print(data.train_set)
-
-    gender = ""
-    age = ""
-    occupation = ""
-    item1 = ""
-    star1 = ""
-    item2 = ""
-    star2 = ""
-    item3 = ""
-    star3 = ""
-    item4 = ""
-    star4 = ""
-    item5 = ""
-    star5 = ""
-    item6 = ""
-    star6 = ""
-
-    prompt = f"""
-        Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: '{item1}, {star1} star; {item2}, {star2} star; {item3}, {star3} star; {item4}, {star4} star; {item5}, {star5} star;'
-    """
-    cot_prompt = f"""
-        He (she) will watch {item6} next, please provide clear explanations based on details from the user's viewing history and other pertinent factors.
-    """
+    data.generate_prompt()
+    # data.generate_test_prompt()
+    # data.generate_validation_prompt()

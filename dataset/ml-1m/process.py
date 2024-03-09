@@ -1,6 +1,8 @@
 import pandas as pd
 import copy
 import json
+import random
+import numpy as np
 
 
 def get_ratings(file):
@@ -74,6 +76,8 @@ class Dataset(object):
         self.use_u2i = u2i
         self.n_users = self.dataset["userID"].nunique()
         self.n_items = self.dataset["itemID"].nunique()
+        print("user number:", self.n_users)
+        print("item number:", self.n_items)
 
     def process_data(
         self,
@@ -250,7 +254,7 @@ class Dataset(object):
                 [type1, self.train_set], axis=0, ignore_index=True
             )
 
-    def generate_prompt(self):
+    def generate_prompt(self, select_num=4):
 
         train_prompts = []
         for index, row in self.train_set.iterrows():
@@ -263,7 +267,10 @@ class Dataset(object):
             age = user[2]
             occupation = user[3]
 
-            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+            if gender == "female":
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', her movie viewing history over time includes: """
+            else:
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his movie viewing history over time includes: """
 
             for i, v in enumerate(row["history"]):
                 item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
@@ -275,20 +282,44 @@ class Dataset(object):
             value = self.item_dataset.loc[
                 self.item_dataset["itemID"] == row["itemID"]
             ].values[0]
-            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
+            if gender == "female":
+                cot_prompt = f"""She will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            else:
+                cot_prompt = f"""He will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
             insert["cot_prompt"] = cot_prompt
-            insert["value"] = value[1]
-            insert["value_genres"] = value[2]
-            insert["value_scale"] = row["rating"]
+            insert["value"] = value[1] + ", " + value[2]
+            # insert["value_scale"] = row["rating"]
+
+            # 生成随机选项
+            exist_movies = row["history"]
+            exist_movies.append(row["itemID"])
+            exist_movies = set(exist_movies)
+            select = [value[1] + ", " + value[2]]
+            while len(select) < select_num:
+                num = random.randint(0, self.n_items)
+                if num not in exist_movies:
+                    item = self.item_dataset.loc[
+                        self.item_dataset["itemID"] == num
+                    ].values
+                    if len(item) > 0:
+                        item = item[0]
+                        select.append(item[1] + ", " + item[2])
+                        exist_movies.add(num)
+            np.random.shuffle(select)  # 乱序
+            insert["select"] = select
+
             train_prompts.append(insert)
             if index % 1000 == 0:
                 print(index)
         with open("train.json", "w") as f:
             json.dump(train_prompts, f)
 
-    def generate_test_prompt(self):
+    def generate_test_prompt(self, select_num=4):
+
         train_prompts = []
-        for _, row in self.test_set.iterrows():
+        for index, row in self.test_set.iterrows():
             user = self.user_dataset.loc[
                 self.user_dataset["userID"] == row["userID"]
             ].values[0]
@@ -298,7 +329,10 @@ class Dataset(object):
             age = user[2]
             occupation = user[3]
 
-            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+            if gender == "female":
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', her movie viewing history over time includes: """
+            else:
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his movie viewing history over time includes: """
 
             for i, v in enumerate(row["history"]):
                 item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
@@ -310,18 +344,44 @@ class Dataset(object):
             value = self.item_dataset.loc[
                 self.item_dataset["itemID"] == row["itemID"]
             ].values[0]
-            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
+            if gender == "female":
+                cot_prompt = f"""She will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            else:
+                cot_prompt = f"""He will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
             insert["cot_prompt"] = cot_prompt
-            insert["value"] = value[1]
-            insert["value_genres"] = value[2]
-            insert["value_scale"] = row["rating"]
+            insert["value"] = value[1] + ", " + value[2]
+            # insert["value_scale"] = row["rating"]
+
+            # 生成随机选项
+            exist_movies = row["history"]
+            exist_movies.append(row["itemID"])
+            exist_movies = set(exist_movies)
+            select = [value[1] + ", " + value[2]]
+            while len(select) < select_num:
+                num = random.randint(0, self.n_items)
+                if num not in exist_movies:
+                    item = self.item_dataset.loc[
+                        self.item_dataset["itemID"] == num
+                    ].values
+                    if len(item) > 0:
+                        item = item[0]
+                        select.append(item[1] + ", " + item[2])
+                        exist_movies.add(num)
+            np.random.shuffle(select)
+            insert["select"] = select
+
             train_prompts.append(insert)
+            if index % 1000 == 0:
+                print(index)
         with open("test.json", "w") as f:
             json.dump(train_prompts, f)
 
-    def generate_validation_prompt(self):
+    def generate_validation_prompt(self, select_num=4):
+
         train_prompts = []
-        for _, row in self.validation_set.iterrows():
+        for index, row in self.validation_set.iterrows():
             user = self.user_dataset.loc[
                 self.user_dataset["userID"] == row["userID"]
             ].values[0]
@@ -331,7 +391,10 @@ class Dataset(object):
             age = user[2]
             occupation = user[3]
 
-            prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his (her) movie viewing history over time includes: """
+            if gender == "female":
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', her movie viewing history over time includes: """
+            else:
+                prompt = f"""Given a user who is '{gender}, {age} years old, and occupation is {occupation}', his movie viewing history over time includes: """
 
             for i, v in enumerate(row["history"]):
                 item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
@@ -343,12 +406,37 @@ class Dataset(object):
             value = self.item_dataset.loc[
                 self.item_dataset["itemID"] == row["itemID"]
             ].values[0]
-            cot_prompt = f"""He (she) will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
+            if gender == "female":
+                cot_prompt = f"""She will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+            else:
+                cot_prompt = f"""He will watch {value[1]} ({value[2]}) next, please provide clear explanations based on details from the user's viewing history and other pertinent factors."""
+
             insert["cot_prompt"] = cot_prompt
-            insert["value"] = value[1]
-            insert["value_genres"] = value[2]
-            insert["value_scale"] = row["rating"]
+            insert["value"] = value[1] + ", " + value[2]
+            # insert["value_scale"] = row["rating"]
+
+            # 生成随机选项
+            exist_movies = row["history"]
+            exist_movies.append(row["itemID"])
+            exist_movies = set(exist_movies)
+            select = [value[1] + ", " + value[2]]
+            while len(select) < select_num:
+                num = random.randint(0, self.n_items)
+                if num not in exist_movies:
+                    item = self.item_dataset.loc[
+                        self.item_dataset["itemID"] == num
+                    ].values
+                    if len(item) > 0:
+                        item = item[0]
+                        select.append(item[1] + ", " + item[2])
+                        exist_movies.add(num)
+            np.random.shuffle(select)
+            insert["select"] = select
+
             train_prompts.append(insert)
+            if index % 1000 == 0:
+                print(index)
         with open("validation.json", "w") as f:
             json.dump(train_prompts, f)
 

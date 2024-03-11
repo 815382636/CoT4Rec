@@ -274,7 +274,11 @@ class Dataset(object):
 
             for i, v in enumerate(row["history"]):
                 item = self.item_dataset.loc[self.item_dataset["itemID"] == v].values[0]
-                item_scale = row["history_feedback"][i]
+                # 存在无打分情况？
+                if len(row["history_feedback"]) > i:
+                    item_scale = row["history_feedback"][i]
+                else:
+                    item_scale = 3
                 prompt += f"({item[1]}, {item[2]}, {item_scale} star); "
             prompt = prompt[:-2] + "."
             insert["prompt"] = prompt

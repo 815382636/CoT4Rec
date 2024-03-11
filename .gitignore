@@ -1,3 +1,4 @@
 *.dat
 .vscode
 *.json
+.DS_Store

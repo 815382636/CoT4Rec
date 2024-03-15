@@ -2,3 +2,5 @@
 .vscode
 *.json
 .DS_Store
+*.jsonl
+*/__pychche__/

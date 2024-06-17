@@ -6,3 +6,6 @@
 *.zip
 *.json
 *.csv
+all-MiniLM-L6-v2
+flan-alpaca-base
+rouge

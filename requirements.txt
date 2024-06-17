@@ -1,5 +1,12 @@
-numpy==1.26.4
-pandas==2.2.1
-sentence_transformers==2.5.1
 dashscope==1.14.1
 openai==1.34.0
+huggingface-hub>=0.4.0
+numpy==1.23.2
+pandas==1.4.3
+rouge==1.0.1
+sentence-transformers==2.2.2
+transformers==4.30.0
+nltk==3.6.6
+evaluate==0.4.0
+rouge_score==0.1.2
+rich>=13.3.2

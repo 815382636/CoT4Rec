@@ -1,6 +1,8 @@
 *.dat
 .vscode
-*.json
 .DS_Store
 *.jsonl
 */__pychche__/
+*.zip
+*.json
+*.csv

@@ -72,7 +72,7 @@ def main():
     encoder = SentenceTransformer(args.encoder)
     corpus = []
     questions = []
-    with open(pred_file + "/test.json", "r") as f:
+    with open(pred_file + "/train.json", "r") as f:
         fp = json.load(f)
         for i in fp:
             corpus.append(i["prompt"] + i["cot_prompt"])

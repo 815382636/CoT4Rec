@@ -213,7 +213,7 @@ def T5Trainer(args):
             weight_decay=0.01,
             num_train_epochs=args.epoch,
             metric_for_best_model=(
-                "eval_loss" if args.prompt_format.endswith("A") else "rougeL"
+                "eval_loss" if "A" in args.prompt_format else "rougeL"
             ),
             predict_with_generate=args.use_generate,
             generation_max_length=args.output_len,
@@ -221,7 +221,7 @@ def T5Trainer(args):
             report_to="none",
         )
 
-    if not args.prompt_format.endswith("A"):
+    if "A" not in args.prompt_format:
         trainer = Seq2SeqTrainer(
             model=model,
             args=training_args,
@@ -252,7 +252,7 @@ def T5Trainer(args):
     trainer.log_metrics("test", metrics)
     trainer.save_metrics("test", metrics)
 
-    if not args.prompt_format.endswith("A"):
+    if "A" not in args.prompt_format:
         predict_results = trainer.predict(
             test_dataset=test_set, max_length=args.output_len
         )
@@ -302,7 +302,7 @@ def T5Trainer(args):
                 writer.write(json.dumps(test_data, indent=4))
 
         # generate the preference for the val set
-        if not args.prompt_format.endswith("A"):
+        if "A" not in args.prompt_format:
             torch.cuda.empty_cache()
             del predict_results, preds, targets
             predict_results = trainer.predict(

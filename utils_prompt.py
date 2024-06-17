@@ -35,7 +35,7 @@ def build(data, form):
     # Based on my viewing history and personal preferences, please customize and sort a curated list of movie recommendations for me. The movies available for selection include:
 
     #  choices=["REC-P", "REC-PA", "REC-A"],
-    if form.endwith("A"):
+    if "A" in form:
         if form == "REC-PA":
             prompt = construct_source(
                 data["history"], data["preference"], data["recommendations"]

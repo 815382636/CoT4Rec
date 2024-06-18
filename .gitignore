@@ -12,3 +12,4 @@ rouge
 data
 experiments
 __pycache__/
+*.log

@@ -80,6 +80,7 @@ def parse_args():
         choices=["REC-P", "REC-PA", "REC-A", "REC-LLM-PA"],
     )
     parser.add_argument("--seed", type=int, default=42, help="random seed")
+    parser.add_argument("--stage", type=int, default=2, help="one or two stages")
 
     args = parser.parse_args()
     return args
@@ -107,7 +108,7 @@ def T5Trainer(args):
             os.mkdir(save_dir)
     print("save_dir:", save_dir)
 
-    train_data, val_data, test_data = load_dataset_std(args.dataset)
+    train_data, val_data, test_data = load_dataset_std(args)
 
     model = T5ForConditionalGeneration.from_pretrained(args.model)
     train_set = DatasetStd(

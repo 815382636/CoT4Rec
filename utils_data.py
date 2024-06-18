@@ -6,13 +6,19 @@ import torch
 from utils_prompt import build
 
 
-def load_dataset_std(dataset):
-    with open("data/" + dataset + "/train.json", "r") as rf:
+def load_dataset_std(args):
+    with open("data/" + args.dataset + "/train.json", "r") as rf:
         train_data = json.load(rf)
-    with open("data/" + dataset + "/val.json", "r") as rf:
-        val_data = json.load(rf)
-    with open("data/" + dataset + "/test.json", "r") as rf:
-        test_data = json.load(rf)
+    if args.stage == 1:
+        with open("data/" + args.dataset + "/val.json", "r") as rf:
+            val_data = json.load(rf)
+        with open("data/" + args.dataset + "/test.json", "r") as rf:
+            test_data = json.load(rf)
+    else:
+        with open(f"{args.output_dir}/{args.dataset}-REC-P/val_new.json", "r") as rf:
+            val_data = json.load(rf)
+        with open(f"{args.output_dir}/{args.dataset}-REC-P/test_new.json", "r") as rf:
+            test_data = json.load(rf)
     return train_data, val_data, test_data
 
 
@@ -33,7 +39,7 @@ class DatasetStd(Dataset):
         self.source_text = []
 
         for i in data:
-            prompt, target = build(i, args.prompt_format)
+            prompt, target = build(i, args.prompt_format, args.stage)
             self.target_text.append(target)
             self.source_text.append(prompt)
 

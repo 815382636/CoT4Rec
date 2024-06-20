@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python main_test.py --dataset ml-100k  --prompt_format REC-PA --bs 8 --eval_bs 8 --epoch 20 --use_generate --output_dir experiments --input_len 1024 --output_len 64 --evaluate_dir ml-100k-REC-PA-stage-2  

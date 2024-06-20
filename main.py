@@ -103,7 +103,9 @@ def T5Trainer(args):
     if args.evaluate_dir is not None:
         save_dir = args.evaluate_dir
     else:
-        save_dir = f"{args.output_dir}/{args.dataset}-{args.prompt_format}"
+        save_dir = (
+            f"{args.output_dir}/{args.dataset}-{args.prompt_format}-stage-{args.stage}"
+        )
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
     print("save_dir:", save_dir)
@@ -116,6 +118,7 @@ def T5Trainer(args):
         tokenizer,
         args.input_len,
         args.output_len,
+        1,
         args,
     )
     eval_set = DatasetStd(
@@ -123,6 +126,7 @@ def T5Trainer(args):
         tokenizer,
         args.input_len,
         args.output_len,
+        args.stage,
         args,
     )
     test_set = DatasetStd(
@@ -130,6 +134,7 @@ def T5Trainer(args):
         tokenizer,
         args.input_len,
         args.output_len,
+        args.stage,
         args,
     )
 

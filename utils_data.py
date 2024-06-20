@@ -30,7 +30,7 @@ class DatasetStd(Dataset):
 
     """
 
-    def __init__(self, data, tokenizer, source_len, target_len, args):
+    def __init__(self, data, tokenizer, source_len, target_len, stage, args):
         self.tokenizer = tokenizer
         self.data = data
         self.source_len = source_len
@@ -39,7 +39,7 @@ class DatasetStd(Dataset):
         self.source_text = []
 
         for i in data:
-            prompt, target = build(i, args.prompt_format, args.stage)
+            prompt, target = build(i, args.prompt_format, stage)
             self.target_text.append(target)
             self.source_text.append(prompt)
 

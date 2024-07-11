@@ -32,7 +32,7 @@ def deal_with(name):
 
 
 meta_data = {}  # id2name
-with open("meta_Movies_and_TV.json", "r") as rf:
+with open("meta_Electronics.json", "r") as rf:
     for i in rf.readlines():
         data = i
         data = data[data.find("'asin': '") + 9 :]
@@ -50,12 +50,12 @@ with open("meta_Movies_and_TV.json", "r") as rf:
         meta_data[asin] = title
         # break
 
-raw_dataset = pd.read_csv("ratings_Movies_and_TV.csv")
+raw_dataset = pd.read_csv("ratings_Electronics.csv")
 
 
 class Dataset(object):
     def __init__(self, dataset, u2i=True):
-        self.dataset = dataset
+        self.dataset = raw_dataset if not dataset else dataset
         self.use_u2i = u2i
         self.n_users = self.dataset["userID"].nunique()
         self.n_items = self.dataset["itemID"].nunique()

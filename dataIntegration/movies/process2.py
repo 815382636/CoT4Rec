@@ -68,6 +68,6 @@ def add_detail(filename):
         json.dump(data, f)
 
 
-add_detail("train.json")
-add_detail("test.json")
-add_detail("val.json")
+# add_detail("train.json")
+# add_detail("test.json")
+# add_detail("val.json")

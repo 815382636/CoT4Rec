@@ -2,15 +2,17 @@ import json
 from prompt import test_openai_api
 
 
-def generate_cot(filename):
+def generate_cot(filename, demoname=None):
 
     prefixs = ""
-    with open("demos/" + filename, "r") as f:
-        data = json.loads(f)
-        for i in data[:5]:
-            prefixs += "viewing history: " + i["history"] + "\n"
-            prefixs += "Please analyze the user's preferences in 100 words based on the viewing history.\n"
-            prefixs += i["preferences"] + "\n"
+
+    if demoname:
+        with open(demoname, "r") as f:
+            data = json.loads(f)
+            for i in data:
+                prefixs += "viewing history: " + i["history"] + "\n"
+                prefixs += "Please analyze the user's preferences in 100 words based on the viewing history.\n"
+                prefixs += i["preferences"] + "\n"
 
     fp = None
     with open(filename, "r") as f:
@@ -34,6 +36,6 @@ def generate_cot(filename):
                 json.dump(fp, wf)
 
 
-generate_cot("train.json")
+# generate_cot("train.json")
 # generate_cot("test.json")
 # generate_cot("val.json")

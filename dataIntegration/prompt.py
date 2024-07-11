@@ -13,8 +13,8 @@ client = OpenAI(
 
 # TODO: The 'openai.base_url' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://api.chatanywhere.tech/v1")'
 # openai.base_url = "https://api.chatanywhere.tech/v1"
-MODEL_NAME = "gpt-4"
-# MODEL_NAME = "gpt-3.5-turbo"
+# MODEL_NAME = "gpt-4"
+MODEL_NAME = "gpt-3.5-turbo"
 # MODEL_NAME = "gpt-4o"
 
 

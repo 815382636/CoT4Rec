@@ -116,6 +116,6 @@ def add_detail(filename):
 file = "movies.dat"
 item_data = get_items(file)
 
-add_detail("train.json")
-add_detail("test.json")
-add_detail("val.json")
+# add_detail("train.json")
+# add_detail("test.json")
+# add_detail("val.json")

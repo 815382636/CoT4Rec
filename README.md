@@ -1,4 +1,4 @@
-# cot-rec
+# CoT4Rec
 
 CoT4Rec: Unveiling User Preferences through Chain of Thought for Recommender Systems
 

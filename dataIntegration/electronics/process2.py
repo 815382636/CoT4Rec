@@ -1,39 +1,25 @@
 import json
 import random
 import numpy as np
-import os
+
+
+name_change = dict()
+name_list = None
+with open("all_name.json", "r") as rf:
+    name_list = json.load(rf)
+    for i in name_list:
+        name_change[i["source"]] = i["target"]
 
 
 def deal_with(name):
-    name = name.strip()
-    if name.find("(") != -1:
-        name = name[: name.find("(")]
-    if name.find("[") != -1:
-        name = name[: name.find("[")]
-    if name.find(" - ") != -1:
-        name = name[: name.find(" - ")]
-    # Vol
-    if name.find(" Vol") != -1:
-        name = name[: name.find(" Vol") - 1]
-    #  /
-    if name.find(" / ") != -1:
-        name = name[: name.find(" / ")]
-    name = name.strip()
-    if name.endswith("DVD"):
-        name = name[:-4]
-    if name.endswith("'"):
-        name = name[:-1]
-    name = name.replace(";", " ")
-    name = name.replace("\n", " ")
-    name = name.replace("&amp", "&")
-    name = name.replace("  ", " ")
-    name = name.replace('"', " ")
-    name = name.strip()
-    return name
-
-
-with open("name.txt", "r") as rf:
-    pass
+    new_name = name_change.get(name) if name_change.get(name) else name
+    if "." in new_name:
+        new_name = new_name[: new_name.find(".")]
+    if "(" in new_name:
+        new_name = new_name[: new_name.find("(")]
+    if "," in new_name:
+        new_name = new_name[: new_name.find(",")]
+    return new_name
 
 
 def add_detail(filename):
@@ -41,12 +27,7 @@ def add_detail(filename):
     with open(filename, "r") as f:
         data = json.load(f)
 
-    use_data = None
-    # with open("ML100k/" + filename, "r") as f:
-    #     use_data = json.load(f)
-
     for i, v in enumerate(data[:]):
-        # data[i]["preference"] = use_data[i]["preference"]
         rec_set = set()
         for j in v["result"]:
             rec_set.add(j)
@@ -56,9 +37,9 @@ def add_detail(filename):
             front_set.add(j)
 
         while len(rec_set) < 100:
-            index = random.randint(1, 1682)
-            if items[index][0] not in front_set:
-                rec_set.add(items[index][0])
+            index = random.randint(0, len(name_list) - 1)
+            if name_list[index]["target"] not in front_set:
+                rec_set.add(name_list[index]["target"])
 
         rec_list = list(rec_set)
         np.random.shuffle(rec_list)  # 乱序
@@ -69,6 +50,6 @@ def add_detail(filename):
         json.dump(data, f)
 
 
-# add_detail("train.json")
-# add_detail("test.json")
-# add_detail("val.json")
+add_detail("train.json")
+add_detail("test.json")
+add_detail("val.json")

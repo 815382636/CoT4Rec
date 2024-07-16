@@ -39,7 +39,7 @@ class DatasetStd(Dataset):
         self.source_text = []
 
         for i in data:
-            prompt, target = build(i, args.prompt_format, stage)
+            prompt, target = build(i, args.prompt_format, stage, args.dataset)
             self.target_text.append(target)
             self.source_text.append(prompt)
 

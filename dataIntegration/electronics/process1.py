@@ -1,34 +1,22 @@
 import json
 import pandas as pd
-import re
+
+name_change = dict()
+with open("all_name.json", "r") as rf:
+    data = json.load(rf)
+    for i in data:
+        name_change[i["source"]] = i["target"]
 
 
 def deal_with(name):
-    name = name.strip()
-    if name.find("(") != -1:
-        name = name[: name.find("(")]
-    if name.find("[") != -1:
-        name = name[: name.find("[")]
-    if name.find(" - ") != -1:
-        name = name[: name.find(" - ")]
-    # Vol
-    if name.find(" Vol") != -1:
-        name = name[: name.find(" Vol") - 1]
-    #  /
-    if name.find(" / ") != -1:
-        name = name[: name.find(" / ")]
-    name = name.strip()
-    if name.endswith("DVD"):
-        name = name[:-4]
-    if name.endswith("'"):
-        name = name[:-1]
-    name = name.replace(";", " ")
-    name = name.replace("\n", " ")
-    name = name.replace("&amp", "&")
-    name = name.replace("  ", " ")
-    name = name.replace('"', " ")
-    name = name.strip()
-    return name
+    new_name = name_change.get(name) if name_change.get(name) else name
+    if "." in new_name:
+        new_name = new_name[: new_name.find(".")]
+    if "(" in new_name:
+        new_name = new_name[: new_name.find("(")]
+    if "," in new_name:
+        new_name = new_name[: new_name.find(",")]
+    return new_name
 
 
 meta_data = {}  # id2name
@@ -46,7 +34,7 @@ with open("meta_Electronics.json", "r") as rf:
                 title = data[: data.find(", '") - 1]
             else:
                 title = data[:-2]
-        print(asin, "\t", title)
+        # print(asin, "\t", title)
         meta_data[asin] = title
         # break
 
@@ -55,7 +43,7 @@ raw_dataset = pd.read_csv("ratings_Electronics.csv")
 
 class Dataset(object):
     def __init__(self, dataset, u2i=True):
-        self.dataset = raw_dataset if not dataset else dataset
+        self.dataset = dataset
         self.use_u2i = u2i
         self.n_users = self.dataset["userID"].nunique()
         self.n_items = self.dataset["itemID"].nunique()
@@ -68,7 +56,7 @@ class Dataset(object):
         order=True,
         leave_n=1,
         keep_n=5,
-        max_history_length=10,
+        max_history_length=5,
         premise_threshold=10,
     ):
         self.proc_dataset = self.dataset.copy()
@@ -78,13 +66,12 @@ class Dataset(object):
             ).reset_index(drop=True)
         self.generate_data_train(history_length=max_history_length, target_length=5)
 
-    def generate_data_train(self, history_length, target_length, step=3):
+    def generate_data_train(self, history_length, target_length, step=1):
         train_set = []
         test_set = []
         validation_set = []
 
         processed_data = self.proc_dataset.copy()
-        # 数量 29241
         rrr = []
         for uid, group in processed_data.groupby("userID"):  # group by uid
             user_list = []
@@ -164,10 +151,6 @@ class Dataset(object):
                     train_set.append(
                         {"history": prompt, "result": result, "front": front}
                     )
-
-        with open("name.txt", "w") as f:
-            for i in self.meta_data_new:
-                f.write(i + "\n")
 
         print("min(rrr)", min(rrr))
         print("max(rrr)", max(rrr))

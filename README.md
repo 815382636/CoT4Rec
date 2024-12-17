@@ -57,4 +57,4 @@ If the code and the paper are useful for you, it is appreciable to cite our pape
 
 ## Thanks
 
-The code refers to the repo [Cbox4cr](https://github.com/liuqidong07/MOELoRA-peft](https://github.com/crazyfat/Cbox4cr), [auto-cot](https://github.com/amazon-science/auto-cot) and [mm-cot](https://github.com/amazon-science/mm-cot).
+The code refers to the repo [Cbox4cr](https://github.com/crazyfat/Cbox4cr), [auto-cot](https://github.com/amazon-science/auto-cot) and [mm-cot](https://github.com/amazon-science/mm-cot).

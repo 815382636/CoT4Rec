@@ -3,7 +3,7 @@ import os
 import json
 import numpy as np
 import torch
-from utils_prompt import build
+from utils.prompt import build
 
 
 def load_dataset_std(args):

@@ -12,8 +12,8 @@ from transformers import (
     T5ForConditionalGeneration,
     EarlyStoppingCallback,
 )
-from utils_data import load_dataset_std, DatasetStd
-from utils_evaluate import caculate, get_scores
+from utils.data import load_dataset_std, DatasetStd
+from utils.evaluate import get_scores
 from rich.table import Column, Table
 from rich import box
 from rich.console import Console

@@ -42,19 +42,6 @@ bash rec-ml-100k-answer.sh
 bash rec-ml-100k-test.sh
 ```
 
-## Citation
-
-If the code and the paper are useful for you, it is appreciable to cite our paper:
-
-```
-@article{yue2025large,
-  title={CoT4Rec: Unveiling User Preferences through Chain of Thought for Recommender Systems},
-  author={Weiqi, Yue and Yuyu, Yin and Xin, Zhang and Binbin, Shi and Tingting, Liang and Jian, Wan},
-  journal={proceedings of the AAAI Conference on Artificial Intelligence},
-  year={2025}
-}
-```
-
 ## Thanks
 
 The code refers to the repo [Cbox4cr](https://github.com/crazyfat/Cbox4cr), [auto-cot](https://github.com/amazon-science/auto-cot) and [mm-cot](https://github.com/amazon-science/mm-cot).
